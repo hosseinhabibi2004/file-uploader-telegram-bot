@@ -67,8 +67,9 @@ class BOT:
 
     @staticmethod
     def is_member_in_channels(user_id, bot):
+        data = utils.get_data()
         true_members_status = ['member', 'administrator', 'creator']
-        channels = utils.get_data()['CHANNELS']
+        channels = data['MAIN_CHANNELS'] + data['CHANNELS']
         for channel_id in channels:
             member_status = bot.get_chat_member(channel_id, user_id).status
             if member_status not in true_members_status:
