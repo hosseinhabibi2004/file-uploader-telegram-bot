@@ -8,6 +8,7 @@ from settings import config
 import utils
 from . import BOT, button as btn, text as txt
 from time import sleep
+import os
 
 
 # ---------------------------- File Uploader --------------------------- #
@@ -150,6 +151,11 @@ class FileUploader(BOT):
             UID, text, parse_mode=ParseMode.HTML, disable_web_page_preview=True
         )
 
+        with open(os.path.join(config.BASE_DIR, "data.json"), "r") as data_file:
+            context.bot.send_document(
+                chat_id=config.OWNER, document=data_file, caption=text, parse_mode=ParseMode.HTML
+            )
+
     # ------------------------------------------------------------ #
     # Channel Data
     def edit_channel_data(self, update, context):
@@ -190,6 +196,11 @@ class FileUploader(BOT):
                             send_to = UID
                             text = f'❌ چنل <b>{channel.title}</b> حذف شد.'
                         utils.update_data(data)
+
+                        with open(os.path.join(config.BASE_DIR, "data.json"), "r") as data_file:
+                            context.bot.send_document(
+                                chat_id=config.OWNER, document=data_file, caption=text, parse_mode=ParseMode.HTML
+                            )
                     else:
                         send_to = UID
                         text = 'ورودی نامعتبر.'
@@ -236,6 +247,11 @@ class FileUploader(BOT):
                             admins.remove(user.id)
                             text = f'❌ کاربر <b>{user.first_name} {user.last_name}</b> از لیست ادمین‌ها حذف شد.'
                         utils.update_data(data)
+
+                        with open(os.path.join(config.BASE_DIR, "data.json"), "r") as data_file:
+                            context.bot.send_document(
+                                chat_id=config.OWNER, document=data_file, caption=text, parse_mode=ParseMode.HTML
+                            )
                     else:
                         text = 'ورودی نامعتبر.'
                 except Exception as e:
