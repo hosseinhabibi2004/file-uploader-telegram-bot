@@ -199,7 +199,7 @@ class FileUploader(BOT):
 
                         with open(os.path.join(config.BASE_DIR, "data.json"), "r") as data_file:
                             context.bot.send_document(
-                                chat_id=config.OWNER, document=data_file, caption=text, parse_mode=ParseMode.HTML
+                                chat_id=config.OWNER, document=data_file, parse_mode=ParseMode.HTML
                             )
                     else:
                         send_to = UID
@@ -250,7 +250,7 @@ class FileUploader(BOT):
 
                         with open(os.path.join(config.BASE_DIR, "data.json"), "r") as data_file:
                             context.bot.send_document(
-                                chat_id=config.OWNER, document=data_file, caption=text, parse_mode=ParseMode.HTML
+                                chat_id=config.OWNER, document=data_file, parse_mode=ParseMode.HTML
                             )
                     else:
                         text = 'ورودی نامعتبر.'
