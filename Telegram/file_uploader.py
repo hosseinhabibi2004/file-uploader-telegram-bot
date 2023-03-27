@@ -103,10 +103,10 @@ class FileUploader(BOT):
         files = data['FILES']
         if self.is_member_in_channels(UID, context.bot):
             file = files[FID]
-            file['download_count'] += 1
             if self.is_admin(UID):
                 text = f"تعداد دانلود: {file['download_count']}\n"
             else:
+                file['download_count'] += 1
                 text = txt.bot_text
             context.bot.send_document(
                 chat_id=UID, document=file['file_id'], caption=text, reply_to_message_id=MID, parse_mode=ParseMode.HTML
