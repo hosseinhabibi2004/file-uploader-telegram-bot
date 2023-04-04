@@ -71,9 +71,6 @@ class FileUploader(BOT):
 
         utils.update_data(data)
 
-        # {'my_chat_member': {'new_chat_member': {'status': 'kicked', 'user': {'is_bot': True, 'first_name': 'Programming Test Bot', 'id': 5561789726, 'username': 'habib_test_bot'}, 'until_date': 0}, 'date': 1678462679, 'old_chat_member': {'status': 'member', 'user': {'is_bot': True, 'first_name': 'Programming Test Bot', 'id': 5561789726, 'username': 'habib_test_bot'}, 'until_date': None}, 'chat': {'type': 'private', 'last_name': 'H', 'id': 5782575795, 'first_name': 'H', 'username': 'hossein_habibi_2004'}, 'from': {'is_bot': False, 'first_name': 'H', 'last_name': 'H', 'id': 5782575795, 'username': 'hossein_habibi_2004', 'language_code': 'en'}}, 'update_id': 286790027}
-        # {'my_chat_member': {'new_chat_member': {'status': 'member', 'user': {'is_bot': True, 'first_name': 'Programming Test Bot', 'id': 5561789726, 'username': 'habib_test_bot'}, 'until_date': None}, 'date': 1678462686, 'old_chat_member': {'status': 'kicked', 'user': {'is_bot': True, 'first_name': 'Programming Test Bot', 'id': 5561789726, 'username': 'habib_test_bot'}, 'until_date': 0}, 'chat': {'type': 'private', 'last_name': 'H', 'id': 5782575795, 'first_name': 'H', 'username': 'hossein_habibi_2004'}, 'from': {'is_bot': False, 'first_name': 'H', 'last_name': 'H', 'id': 5782575795, 'username': 'hossein_habibi_2004', 'language_code': 'en'}}, 'update_id': 286790028}
-
     # ------------------------------------------------------------ #
     # Start Bot
     def start_bot(self, update, context):
@@ -129,7 +126,6 @@ class FileUploader(BOT):
             context.bot.send_message(UID, text, reply_markup=IKM(keyboard), parse_mode=ParseMode.HTML, disable_web_page_preview=True)
             # keyboard.append([IKB(text='Download File', url=create_deep_linked_url(context.bot.username, f"file_{FID}"))])
         utils.update_data(data)
-
 
     # ------------------------------------------------------------ #
     # Add File
