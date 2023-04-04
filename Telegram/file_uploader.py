@@ -133,9 +133,9 @@ class FileUploader(BOT):
                     context.bot.send_message(
                         config.OWNER, f'[ERROR] (Get File)\n<a href="{create_deep_linked_url(context.bot.username, f"file_{FID}")}">File</a>\n\n{e}', parse_mode=ParseMode.HTML, disable_web_page_preview=True
                     )
+            keyboard.append([IKB(text='📁 دریافت فایل 📁', url=create_deep_linked_url(context.bot.username, f"file_{FID}"))])
             text = txt.start_file_text.format(url=create_deep_linked_url(context.bot.username, f"file_{FID}"))
             context.bot.send_message(UID, text, reply_markup=IKM(keyboard), parse_mode=ParseMode.HTML, disable_web_page_preview=True)
-            # keyboard.append([IKB(text='Download File', url=create_deep_linked_url(context.bot.username, f"file_{FID}"))])
         utils.update_data(data)
 
     # ------------------------------------------------------------ #
