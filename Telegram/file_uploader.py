@@ -51,7 +51,7 @@ class FileUploader(BOT):
             context.bot.send_document(
                 chat_id=config.OWNER, document=data_file, parse_mode=ParseMode.HTML
             )
-    
+
     def cancel(self, update, context):
         CID = update.effective_chat.id
         text = txt.back_menu

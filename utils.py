@@ -14,7 +14,7 @@ def get_data():
         data['CHANNELS'][channel] = set(data['CHANNELS'][channel])
     for file in data['FILES']:
         data['FILES'][file]['users'] = set(data['FILES'][file]['users'])
-    
+
     return data
 
 def update_data(data):
@@ -24,6 +24,6 @@ def update_data(data):
         data['CHANNELS'][channel] = list(data['CHANNELS'][channel])
     for file in data['FILES']:
         data['FILES'][file]['users'] = list(data['FILES'][file]['users'])
-    
+
     with open(os.path.join(config.BASE_DIR, "data.json"), "w") as data_file:
         json.dump(data, data_file)
