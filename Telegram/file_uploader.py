@@ -21,6 +21,7 @@ class FileUploader(BOT):
             ChatMemberHandler(self.chat_member_handler, ChatMemberHandler.ANY_CHAT_MEMBER),
             CommandHandler(txt.start_cmd, self.start_file, Filters.regex(txt.start_file_regex)),
             CommandHandler(txt.start_cmd, self.start_bot),
+            CommandHandler(txt.backup_cmd, self.backup_data),
             CommandHandler(txt.channel_data_cmd, self.edit_channel_data),
             CommandHandler(txt.admin_data_cmd, self.edit_admin_data),
             MessageHandler(
@@ -45,6 +46,12 @@ class FileUploader(BOT):
 
     # ------------------------------------------------------------ #
     # Static
+    def backup_data(self, update, context):
+        with open(os.path.join(config.BASE_DIR, "data.json"), "r") as data_file:
+            context.bot.send_document(
+                chat_id=config.OWNER, document=data_file, parse_mode=ParseMode.HTML
+            )
+    
     def cancel(self, update, context):
         CID = update.effective_chat.id
         text = txt.back_menu
@@ -141,16 +148,12 @@ class FileUploader(BOT):
                 'download_count': 0
             }
         utils.update_data(data)
+        self.backup_data(update, context)
 
         text = create_deep_linked_url(context.bot.username, f"file_{document.file_unique_id}")
         context.bot.send_message(
             UID, text, parse_mode=ParseMode.HTML, disable_web_page_preview=True
         )
-
-        with open(os.path.join(config.BASE_DIR, "data.json"), "r") as data_file:
-            context.bot.send_document(
-                chat_id=config.OWNER, document=data_file, parse_mode=ParseMode.HTML
-            )
 
     # ------------------------------------------------------------ #
     # Channel Data
@@ -192,11 +195,7 @@ class FileUploader(BOT):
                             send_to = UID
                             text = f'❌ چنل <b>{channel.title}</b> حذف شد.'
                         utils.update_data(data)
-
-                        with open(os.path.join(config.BASE_DIR, "data.json"), "r") as data_file:
-                            context.bot.send_document(
-                                chat_id=config.OWNER, document=data_file, parse_mode=ParseMode.HTML
-                            )
+                        self.backup_data(update, context)
                     else:
                         send_to = UID
                         text = 'ورودی نامعتبر.'
@@ -243,11 +242,7 @@ class FileUploader(BOT):
                             admins.remove(user.id)
                             text = f'❌ کاربر <b>{user.first_name} {user.last_name}</b> از لیست ادمین‌ها حذف شد.'
                         utils.update_data(data)
-
-                        with open(os.path.join(config.BASE_DIR, "data.json"), "r") as data_file:
-                            context.bot.send_document(
-                                chat_id=config.OWNER, document=data_file, parse_mode=ParseMode.HTML
-                            )
+                        self.backup_data(update, context)
                     else:
                         text = 'ورودی نامعتبر.'
                 except Exception as e:

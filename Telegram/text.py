@@ -8,6 +8,7 @@ start_file_regex = r"^(/start file_[a-zA-Z0-9-_]+)$"
 
 # ------------------------------- Command ------------------------------ #
 start_cmd = "start"
+backup_cmd = "backup"
 cancel_cmd = "cancel"
 channel_data_cmd = "channel"
 admin_data_cmd = "admin"
