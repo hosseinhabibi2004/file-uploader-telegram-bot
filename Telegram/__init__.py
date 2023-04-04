@@ -38,7 +38,7 @@ class BOT:
     @staticmethod
     def is_user(UID):
         users = utils.get_data()['USERS']
-        if int(UID) in users:
+        if str(UID) in users:
             return True
         return False
 
@@ -46,26 +46,31 @@ class BOT:
     def is_admin(UID):
         owner = config.OWNER
         admins = utils.get_data()['ADMINS']
-        if (int(UID) in admins) or (int(UID) == owner):
+        if (str(UID) in admins) or (str(UID) == owner):
             return True
         return False
 
     @staticmethod
     def is_owner(UID):
         owner = config.OWNER
-        if int(UID) == owner:
+        if str(UID) == owner:
             return True
         return False
 
-    @staticmethod
-    def is_member_in_channels(user_id, bot):
+    def is_member_in_channels(self, user_id, bot):
+        not_joined_channels = list()
         data = utils.get_data()
         true_members_status = ['member', 'administrator', 'creator']
-        channels = data['MAIN_CHANNELS'] + data['CHANNELS']
-        for channel_id in channels:
-            member_status = bot.get_chat_member(channel_id, user_id).status
-            if member_status not in true_members_status:
-                return False
-        return True
+        channels = data['MAIN_CHANNELS'] + list(data['CHANNELS'].keys())
+
+        if not self.is_admin(user_id):
+            for channel_id in channels:
+                try:
+                    member_status = bot.get_chat_member(channel_id, user_id).status
+                    if member_status not in true_members_status:
+                        not_joined_channels.append(channel_id)
+                except:
+                    pass
+        return not_joined_channels
 
     # ------------------------------------------------------------ #

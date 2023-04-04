@@ -67,9 +67,9 @@ class FileUploader(BOT):
 
         status = update.my_chat_member.new_chat_member.status
         if status == 'kicked':
-            users.remove(UID)
+            users.remove(str(UID))
         elif status == 'member':
-            users.append(UID)
+            users.add(str(UID))
         else:
             text = f'[ChatMemberHandler]\n<code>{str(update)}</code>'
             return context.bot.send_message(
@@ -85,7 +85,7 @@ class FileUploader(BOT):
 
         data = utils.get_data()
         if not self.is_user(UID):
-            data['USERS'].append(UID)
+            data['USERS'].add(str(UID))
         utils.update_data(data)
 
         text = txt.start_bot_text
@@ -102,21 +102,25 @@ class FileUploader(BOT):
 
         data = utils.get_data()
         if not self.is_user(UID):
-            data['USERS'].append(UID)
+            data['USERS'].add(str(UID))
 
         files = data['FILES']
-        if self.is_member_in_channels(UID, context.bot):
+        channels = self.is_member_in_channels(UID, context.bot)
+        if channels == []:
             file = files[FID]
             if self.is_admin(UID):
-                text = f"تعداد دانلود: {file['download_count']}\n"
+                text = f"تعداد دانلود: {len(file['users'])}\n"
             else:
-                file['download_count'] += 1
+                if UID not in file['users']:
+                    file['users'].add(str(UID))
+                for channel in data['CHANNELS']:
+                    if UID not in data['CHANNELS'][channel]:
+                        data['CHANNELS'][channel].add(str(UID))
                 text = txt.bot_text
             context.bot.send_document(
                 chat_id=UID, document=file['file_id'], caption=text, reply_to_message_id=MID, parse_mode=ParseMode.HTML
             )
         else:
-            channels = data['MAIN_CHANNELS'] + data['CHANNELS']
             keyboard = []
             for channel_id in channels:
                 try:
@@ -145,7 +149,7 @@ class FileUploader(BOT):
         if document.file_unique_id not in files:
             files[document.file_unique_id] = {
                 'file_id': document.file_id,
-                'download_count': 0
+                'users': list()
             }
         utils.update_data(data)
         self.backup_data(update, context)
@@ -166,13 +170,18 @@ class FileUploader(BOT):
         if self.is_admin(UID):
             if channel_data == f'/{txt.channel_data_cmd}':
                 send_to = UID
-                text = 'کانال های فعلی:\n'
+                text = 'کانال های فعلی\n\n'
                 for channel_id in channels:
-                    channel = context.bot.get_chat(channel_id)
-                    if channel.invite_link != None:
-                        text += f'✅ <a href="{channel.invite_link}">{channel.title}</a>\n'
-                    else:
-                        text += f'❌ <a href="https://t.me/{channel.username}">{channel.title}</a>\n'
+                    try:
+                        channel = context.bot.get_chat(channel_id)
+                        if channel.invite_link != None:
+                            text += f'✅ <a href="{channel.invite_link}">{channel.title}</a>\n#️⃣ {len(channels[str(channel.id)])}\n\n'
+                        else:
+                            text += f'❌ <a href="https://t.me/{channel.username}">{channel.title}</a>\n#️⃣ {len(channels[str(channel.id)])}\n\n'
+                    except Exception as e:
+                        context.bot.send_message(
+                            config.OWNER, f"{channel_id}\n<code>{e}</code>", parse_mode=ParseMode.HTML, disable_web_page_preview=True
+                        )
             else:
                 try:
                     if channel_data.isdigit():
@@ -186,12 +195,12 @@ class FileUploader(BOT):
 
                     channel = context.bot.get_chat(channel_data)
                     if channel.type == 'channel':
-                        if channel.id not in channels:
-                            channels.append(channel.id)
+                        if str(channel.id) not in channels:
+                            channels[str(channel.id)] = list()
                             send_to = UID
                             text = f'✅ چنل <b>{channel.title}</b> اضافه شد.'
                         else:
-                            channels.remove(channel.id)
+                            del channels[str(channel.id)]
                             send_to = UID
                             text = f'❌ چنل <b>{channel.title}</b> حذف شد.'
                         utils.update_data(data)
@@ -221,10 +230,10 @@ class FileUploader(BOT):
         admins = data['ADMINS']
         if self.is_owner(UID):
             if user_data == f'/{txt.admin_data_cmd}':
-                text = 'ادمین‌ها:\n'
+                text = 'ادمین‌ها\n\n'
                 for admin_id in admins:
                     admin = context.bot.get_chat(admin_id)
-                    text += f'<a href="https://t.me/{admin.username}">{admin.first_name} {admin.last_name}</a>\n'
+                    text += f'<a href="https://t.me/{admin.username}">{admin.first_name if admin.first_name != None else ""} {admin.last_name if admin.last_name != None else ""}</a>\n'
             else:
                 if not user_data.isdigit():
                     if '/' in user_data:
@@ -235,12 +244,12 @@ class FileUploader(BOT):
                 try:
                     user = context.bot.get_chat(user_data)
                     if user.type == 'private':
-                        if user.id not in admins:
-                            admins.append(user.id)
-                            text = f'✅ کاربر <b>{user.first_name} {user.last_name}</b> ادمین شد.'
+                        if str(user.id) not in admins:
+                            admins.add(str(user.id))
+                            text = f'✅ کاربر <b>{user.first_name if user.first_name != None else ""} {user.last_name if user.last_name != None else ""}</b> ادمین شد.'
                         else:
-                            admins.remove(user.id)
-                            text = f'❌ کاربر <b>{user.first_name} {user.last_name}</b> از لیست ادمین‌ها حذف شد.'
+                            admins.remove(str(user.id))
+                            text = f'❌ کاربر <b>{user.first_name if user.first_name != None else ""} {user.last_name if user.last_name != None else ""}</b> از لیست ادمین‌ها حذف شد.'
                         utils.update_data(data)
                         self.backup_data(update, context)
                     else:

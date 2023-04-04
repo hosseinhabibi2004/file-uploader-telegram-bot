@@ -17,7 +17,7 @@ load_dotenv()
 class config:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     BOT_TOKEN = os.getenv('BOT_TOKEN')
-    OWNER = int(os.getenv('OWNER'))
+    OWNER = os.getenv('OWNER')
     TG_ID = os.getenv('TG_ID')
     TG_NAME = os.getenv('TG_NAME')
 
