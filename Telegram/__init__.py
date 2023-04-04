@@ -22,15 +22,7 @@ class BOT:
     # Static
     def start(self):
         try:
-            if config.DEBUG:
-                self.updater.start_polling()
-            else:
-                self.updater.start_webhook(
-                    listen="0.0.0.0",
-                    port=int(os.environ.get('PORT')),
-                    url_path=config.BOT_TOKEN,
-                    webhook_url=f"https://{config.HEROKU_APP_NAME}.herokuapp.com/" + config.BOT_TOKEN
-                )
+            self.updater.start_polling()
             print('Connected :)')
         except Exception as e:
             print('No Connection :(')
