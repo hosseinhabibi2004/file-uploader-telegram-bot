@@ -11,7 +11,7 @@ def get_data():
     data['USERS'] = set(data['USERS'])
     data['ADMINS'] = set(data['ADMINS'])
     for channel in data['CHANNELS']:
-        data['CHANNELS'][channel] = set(data['CHANNELS'][channel])
+        data['CHANNELS'][channel]['users'] = set(data['CHANNELS'][channel]['users'])
     for file in data['FILES']:
         data['FILES'][file]['users'] = set(data['FILES'][file]['users'])
 
@@ -21,7 +21,7 @@ def update_data(data):
     data['USERS'] = list(data['USERS'])
     data['ADMINS'] = list(data['ADMINS'])
     for channel in data['CHANNELS']:
-        data['CHANNELS'][channel] = list(data['CHANNELS'][channel])
+        data['CHANNELS'][channel]['users'] = list(data['CHANNELS'][channel]['users'])
     for file in data['FILES']:
         data['FILES'][file]['users'] = list(data['FILES'][file]['users'])
 

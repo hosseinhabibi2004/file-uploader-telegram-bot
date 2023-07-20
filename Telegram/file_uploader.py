@@ -1,7 +1,7 @@
 # ------------------------------- Import ------------------------------- #
 import json
 from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHandler, ChatMemberHandler
-from telegram import InlineKeyboardMarkup as IKM, InlineKeyboardButton as IKB, ParseMode
+from telegram import InlineKeyboardMarkup as IKM, InlineKeyboardButton as IKB, ParseMode, ChatInviteLink, TelegramError
 from telegram.utils.helpers import create_deep_linked_url
 
 from settings import config
@@ -114,7 +114,7 @@ class FileUploader(BOT):
                 if UID not in file['users']:
                     file['users'].add(str(UID))
                 for channel in data['CHANNELS']:
-                    if UID not in data['CHANNELS'][channel]:
+                    if UID not in data['CHANNELS'][channel]['users']:
                         data['CHANNELS'][channel].add(str(UID))
                 text = txt.bot_text
             context.bot.send_document(
@@ -122,13 +122,12 @@ class FileUploader(BOT):
             )
         else:
             keyboard = []
-            for channel_id in channels:
+            for channel_id, invite_link in channels.items():
                 try:
                     channel = context.bot.get_chat(channel_id)
-                    if channel.invite_link != None:
-                        keyboard.append(
-                            [IKB(text=channel.title, url=channel.invite_link)]
-                        )
+                    keyboard.append(
+                        [IKB(text=channel.title, url=invite_link)]
+                    )
                 except Exception as e:
                     context.bot.send_message(
                         config.OWNER, f'[ERROR] (Get File)\n<a href="{create_deep_linked_url(context.bot.username, f"file_{FID}")}">File</a>\n\n{e}', parse_mode=ParseMode.HTML, disable_web_page_preview=True
@@ -163,40 +162,45 @@ class FileUploader(BOT):
     # Channel Data
     def edit_channel_data(self, update, context):
         UID = update.effective_user.id
-        channel_data = update.message.text.replace(f'/{txt.channel_data_cmd} ', '')
+        channel_data = update.message.text.replace(f'/{txt.channel_data_cmd} ', '').split(' ')
 
         data = utils.get_data()
         channels = data['CHANNELS']
         if self.is_admin(UID):
-            if channel_data == f'/{txt.channel_data_cmd}':
+            if channel_data[0] == f'/{txt.channel_data_cmd}':
                 send_to = UID
                 text = 'کانال های فعلی\n\n'
                 for channel_id in channels:
                     try:
                         channel = context.bot.get_chat(channel_id)
                         if channel.invite_link != None:
-                            text += f'✅ <a href="{channel.invite_link}">{channel.title}</a>\n#️⃣ {len(channels[str(channel.id)])}\n\n'
+                            text += f'✅ <a href="{channel.invite_link}">{channel.title}</a>\n#️⃣ {len(channels[str(channel.id)]["users"])}\n\n'
                         else:
-                            text += f'❌ <a href="https://t.me/{channel.username}">{channel.title}</a>\n#️⃣ {len(channels[str(channel.id)])}\n\n'
+                            text += f'❌ <a href="https://t.me/{channel.username}">{channel.title}</a>\n#️⃣ {len(channels[str(channel.id)]["users"])}\n\n'
                     except Exception as e:
                         context.bot.send_message(
                             config.OWNER, f"{channel_id}\n<code>{e}</code>", parse_mode=ParseMode.HTML, disable_web_page_preview=True
                         )
             else:
                 try:
-                    if channel_data.isdigit():
-                        if not channel_data.startswith('-100'):
-                            channel_data = '-100' + channel_data
+                    if channel_data[0].replace('-', '').isdigit():
+                        if not channel_data[0].startswith('-100'):
+                            channel_data[0] = '-100' + channel_data[0]
                     else:
-                        if '/' in channel_data:
-                            channel_data = channel_data.split('/')[-1]
-                        if not channel_data.startswith('@'):
-                            channel_data = '@' + channel_data
+                        if '/' in channel_data[0]:
+                            channel_data[0] = channel_data[0].split('/')[-1]
+                        if not channel_data[0].startswith('@'):
+                            channel_data[0] = '@' + channel_data[0]
 
-                    channel = context.bot.get_chat(channel_data)
-                    if channel.type == 'channel':
+                    channel = context.bot.get_chat(channel_data[0])
+                    if channel.type in ['group', 'supergroup', 'channel']:
                         if str(channel.id) not in channels:
-                            channels[str(channel.id)] = list()
+                            if len(channel_data) == 2:
+                                new_invite_link = channel.create_invite_link(name=config.TG_NAME, member_limit=int(channel_data[1])).invite_link
+                                channels[str(channel.id)] = {'invite_link': new_invite_link, 'users': list()}
+                            else:
+                                new_invite_link = channel.revoke_invite_link(channel.invite_link).invite_link
+                                channels[str(channel.id)] = {'invite_link': None, 'users': list()}
                             send_to = UID
                             text = f'✅ چنل <b>{channel.title}</b> اضافه شد.'
                         else:
@@ -212,6 +216,9 @@ class FileUploader(BOT):
                     if str(e) == 'Chat not found':
                         send_to = UID
                         text = "ربات در چنل عضو نیست."
+                    elif str(e) == 'Not enough rights to manage chat invite link':
+                        send_to = UID
+                        text = "ربات دسترسی کافی را ندارد."
                     else:
                         send_to = config.OWNER
                         text = f'[COMMAND]\n{update.message.text}\n\n[ERROR]\n{str(e)}'
