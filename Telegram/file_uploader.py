@@ -115,7 +115,7 @@ class FileUploader(BOT):
                     file['users'].add(str(UID))
                 for channel in data['CHANNELS']:
                     if UID not in data['CHANNELS'][channel]['users']:
-                        data['CHANNELS'][channel].add(str(UID))
+                        data['CHANNELS'][channel]['users'].add(str(UID))
                 text = txt.bot_text
             context.bot.send_document(
                 chat_id=UID, document=file['file_id'], caption=text, reply_to_message_id=MID, parse_mode=ParseMode.HTML
