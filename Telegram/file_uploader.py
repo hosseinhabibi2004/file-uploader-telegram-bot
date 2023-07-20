@@ -106,7 +106,7 @@ class FileUploader(BOT):
 
         files = data['FILES']
         channels = self.is_member_in_channels(UID, context.bot)
-        if channels == []:
+        if channels == dict():
             file = files[FID]
             if self.is_admin(UID):
                 text = f"تعداد دانلود: {len(file['users'])}\n"
