@@ -194,7 +194,7 @@ class FileUploader(BOT):
                             channel_data = '@' + channel_data
 
                     channel = context.bot.get_chat(channel_data)
-                    if channel.type == 'channel':
+                    if channel.type in ['group', 'supergroup', 'channel']:
                         if str(channel.id) not in channels:
                             channels[str(channel.id)] = list()
                             send_to = UID
