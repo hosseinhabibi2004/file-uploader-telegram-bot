@@ -58,19 +58,35 @@ class BOT:
         return False
 
     def is_member_in_channels(self, user_id, bot):
-        not_joined_channels = list()
+        not_joined_channels = dict()
         data = utils.get_data()
         true_members_status = ['member', 'administrator', 'creator']
-        channels = data['MAIN_CHANNELS'] + list(data['CHANNELS'].keys())
 
         if not self.is_admin(user_id):
-            for channel_id in channels:
+            for channel_id in data['MAIN_CHANNELS']:
                 try:
+                    channel = bot.get_chat(channel_id)
+                    invite_link = channel.invite_link
+
                     member_status = bot.get_chat_member(channel_id, user_id).status
                     if member_status not in true_members_status:
-                        not_joined_channels.append(channel_id)
+                        not_joined_channels[channel_id] = invite_link
                 except:
                     pass
+
+            for channel_id in data['CHANNELS']:
+                try:
+                    if data['CHANNELS'][channel_id]['invite_link'] == None:
+                        channel = bot.get_chat(channel_id)
+                        invite_link = channel.invite_link
+                    else:
+                        invite_link = data['CHANNELS'][channel_id]['invite_link']
+
+                    member_status = bot.get_chat_member(channel_id, user_id).status
+                    if member_status not in true_members_status:
+                        not_joined_channels[channel_id] = invite_link
+                except Exception as e:
+                    print(1, e)
         return not_joined_channels
 
     # ------------------------------------------------------------ #
