@@ -184,7 +184,7 @@ class FileUploader(BOT):
                         )
             else:
                 try:
-                    if channel_data.isdigit():
+                    if channel_data.replace('-', '').isdigit():
                         if not channel_data.startswith('-100'):
                             channel_data = '-100' + channel_data
                     else:
